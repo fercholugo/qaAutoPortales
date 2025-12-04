@@ -1,0 +1,1 @@
+{"uuid": "1ab18cbe-e6b4-4fa8-9c13-94bfbe80b456", "befores": [{"name": "pytestbdd_stepdef_given_que el usuario \"{nombre_actor}\" abre el portal cautivo en \"{navegador}\" con url \"{url}\"", "status": "passed", "start": 1757625915371, "stop": 1757625915371}], "start": 1757625915371, "stop": 1757625965964}

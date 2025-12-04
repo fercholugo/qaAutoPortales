@@ -1,0 +1,2 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"/Users/fernandolugo/code/qa-auto-portales/features/portal_cautivo_un_panel.feature: Llenar y enviar el formulario del portal cautivo (unico)","50591","test_llenar_y_enviar_el_formulario_del_portal_cautivo_unico","tests","Thu Sep 11 16:25:15 GMT-05:00 2025","passed","Thu Sep 11 16:26:05 GMT-05:00 2025","","test_steps_portal_cautivo_uno","",""

@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.git/
+.gitignore
+.env
+.vscode/
+.idea/
+*.egg-info/
+dist/
+build/
+.DS_Store
+node_modules/
+reporte_html/reporte.html

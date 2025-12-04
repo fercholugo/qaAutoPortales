@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  qa-automation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qa-portales-automation
+    
+    # Volumen bind: reportes y videos locales
+    volumes:
+      - ./reporte_html:/app/reporte_html
+    
+    # Variables de entorno
+    environment:
+      - RECORD_VIDEO=1
+      - VIDEO_INTERVAL=0.3
+      - CHROME_BIN=/usr/bin/chromium
+      - CHROMEDRIVER_BIN=/usr/bin/chromedriver
+    
+    # Opciones de ejecución
+    stdin_open: true
+    tty: true
+    
+    # Ejecuta run_tests.sh con parámetros (FEATURE_ALIAS + SCENARIO_KEYWORD)
+    # Default: portal_normal + unico
+    # Cambiar aquí para diferentes ejecuciones
+    command: ./run_tests.sh portal_normal varios
