@@ -75,18 +75,6 @@ class TaskFillPortalForm:
         except Exception:
             TaskFillPortalForm.log_and_print("[Task] No se pudo leer el nombre del portal.")
 
-        # --- Generar correo temporal Guerrilla Mail SOLO si es Necesario ejemplo: (Banco Agrario) ---
-        guerrilla_email = None
-        guerrilla_sid = None
-        if "bancoagrario" in nombre_portal.lower():
-            try:
-                guerrilla_email, guerrilla_sid = generar_correo()
-                TaskFillPortalForm.log_and_print(f"[Task] Correo temporal generado: {guerrilla_email}")
-            except Exception as e:
-                TaskFillPortalForm.log_and_print(f"[Task] Error generando correo temporal: {e}")
-        # --- FIN Generar correo temporal ---
-        
-
         # Click en div.bloque según el portal detectado
         try:
             bloques = driver.find_elements(By.CSS_SELECTOR, 'div.bloque')
@@ -109,8 +97,21 @@ class TaskFillPortalForm:
             TaskFillPortalForm.log_and_print(f"[Task] Error en la detección de bloques pre-portal: {e}")
         # --- FIN Click en BLOQUE IMAGEN ---
 
+        # --- Generar correo temporal Guerrilla Mail SOLO si es Necesario ejemplo: (Banco Agrario) ---
+        guerrilla_email = None
+        guerrilla_sid = None
+        if "bancoagrario" in nombre_portal.lower():
+            try:
+                guerrilla_email, guerrilla_sid = generar_correo()
+                TaskFillPortalForm.log_and_print(f"[Task] Correo temporal generado: {guerrilla_email}")
+            except Exception as e:
+                TaskFillPortalForm.log_and_print(f"[Task] Error generando correo temporal: {e}")
+        # --- FIN Generar correo temporal ---
+
         # Buscar los paneles del formulario (clase 'panel_portal')
         panels = driver.find_elements(By.CLASS_NAME, 'panel_portal')
+
+        #traer todo el html de los paneles a la consola para verificar su estructura:
         TaskFillPortalForm.log_and_print(f"[Screenplay] Paneles encontrados: {len(panels)}")
         TaskFillPortalForm.log_and_print("\n[Screenplay] === DETECCIÓN E INTERACCIÓN DE ELEMENTOS DEL FORMULARIO ===")
         for panel_idx, panel in enumerate(panels):

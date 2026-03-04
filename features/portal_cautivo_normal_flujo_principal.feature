@@ -15,6 +15,7 @@ Feature: Flujo principal portal cautivo normal(datos correctos)
 
     Examples:
       | nombre_actor | navegador | url                                                                           |
+      | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=28534eae4400&mac=    |
       | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=5cdf8930f2a0&mac=    |
       | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=b01f8cc3c8aa&mac=    |
       | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=2cc81ba2565e&mac=    |

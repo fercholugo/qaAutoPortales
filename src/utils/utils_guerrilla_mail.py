@@ -46,7 +46,10 @@ def leer_codigo(sid_token, asunto_busqueda="", espera=60, regex_codigo=r"Tu PIN 
             emails = data.get("list", [])
             print(f"[GuerrillaMailUtil] Intento {intento + 1}/{intentos} — emails en bandeja: {len(emails)}")
 
-            for email in emails:
+            # Ordenar emails por fecha descendente (más reciente primero)
+            emails_ordenados = sorted(emails, key=lambda x: int(x.get("mail_timestamp", 0)), reverse=True)
+
+            for email in emails_ordenados:
                 asunto = email.get("mail_subject", "")
                 # Log de todos los emails en bandeja para diagnóstico
                 print(f"[GuerrillaMailUtil] Email en bandeja: asunto='{asunto}'")

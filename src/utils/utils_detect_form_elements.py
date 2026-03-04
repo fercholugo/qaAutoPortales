@@ -5,8 +5,10 @@ def detect_form_elements(driver):
     panels = driver.find_elements(By.XPATH, "//*[starts-with(@id, 'panel')]")
     if not panels:
         print("[Screenplay] No se encontraron paneles con id que empiece por 'panel'.")
-        print("[Screenplay] HTML actual:")
-        print(driver.page_source)
+
+        # ACTIVAR SI SE QUIERE: Imprimir el HTML completo para diagnóstico
+        #print("[Screenplay] HTML actual:")
+        #print(driver.page_source)
         return
 
     # CAMBIO: Recorrer cada panel encontrado
