@@ -9,6 +9,8 @@ from src.abilities.browse_the_web import BrowseTheWeb
 from src.tasks.task_fill_portal_form import TaskFillPortalForm
 from src.questions.is_on_google import IsOnGoogle
 from src.video.viewport_recorder import ViewportRecorder
+from src.questions.is_on_expected_url import IsOnExpectedUrl
+
 
 #para docker
 from os.path import abspath, join, dirname
@@ -65,7 +67,7 @@ def step_form_sent(contexto):
     """
     try:
         time.sleep(5)  # Espera final para redirección.
-        assert IsOnGoogle.answered_by(contexto['actor']), "El flujo no terminó en Google"
+        assert IsOnExpectedUrl.answered_by(contexto['actor']), "El flujo no terminó en una URL esperada"
     finally:
         recorder = contexto.get('recorder')
         if recorder:

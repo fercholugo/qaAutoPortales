@@ -4,7 +4,7 @@ Feature: Flujo principal portal cautivo normal(datos correctos)
   Para poder acceder al servicio de internet
 
   Scenario: Flujo principal datos correctos portal cautivo normal (unico)
-    Given que el usuario "Fernando" accede al portal cautivo en "chrome" con la url "https://app.datawifi.co/easyfi/web/app.php/portal?called=764x3806&mac="
+    Given que el usuario "Fernando" accede al portal cautivo en "chrome" con la url "https://app.datawifi.co/easyfi/web/app.php/portal?called=28534eae4400&mac="
     When ingresa todos los datos obligatorios y validos en el formulario
     Then el flujo es finalizado y validado correctamente
 
@@ -14,8 +14,9 @@ Feature: Flujo principal portal cautivo normal(datos correctos)
     Then el flujo es finalizado y validado correctamente
 
     Examples:
-      | nombre_actor | navegador | url                                                                         |
-      | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=f89e2875a8aa&mac=  |
-      | Maria        | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=764x3806&mac=      |
-      | Juan         | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=764x3460&mac=      |
+      | nombre_actor | navegador | url                                                                           |
+      | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=5cdf8930f2a0&mac=    |
+      | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=b01f8cc3c8aa&mac=    |
+      | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=2cc81ba2565e&mac=    |
+      | Fernando     | chrome    | https://app.datawifi.co/easyfi/web/app.php/portal?called=54a274105f40&mac=    |
 

@@ -1,0 +1,4 @@
+[tool.pyright]
+include = ["src", "tests", "conftest.py"]
+venvPath = "."
+venv = "venv"

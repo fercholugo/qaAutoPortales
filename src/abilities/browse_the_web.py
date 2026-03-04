@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.os_manager import ChromeType
 import os
 
 class BrowseTheWeb:
@@ -13,19 +12,17 @@ class BrowseTheWeb:
     def _init_driver(self):
         if self.browser_name == "chrome":
             chrome_options = Options()
-            chrome_options.add_argument("--headless")
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
             
-            # Intenta usar ChromeDriver del sistema (Docker) o webdriver-manager (local)
-            chromedriver_path = os.environ.get("CHROMEDRIVER_BIN")
-            if chromedriver_path and os.path.exists(chromedriver_path):
-                # Usa el ChromeDriver del sistema (en Docker con Chromium)
+            # Solo headless en Docker
+            if os.path.exists('/.dockerenv'):
+                chrome_options.add_argument("--headless")
+                chrome_options.add_argument("--no-sandbox")
+                chrome_options.add_argument("--disable-dev-shm-usage")
                 chrome_options.binary_location = os.environ.get("CHROME_BIN", "/usr/bin/chromium")
-                service = Service(chromedriver_path)
+                service = Service(os.environ.get("CHROMEDRIVER_BIN", "/usr/bin/chromedriver"))
             else:
-                # Usa webdriver-manager para descargar automáticamente (en local)
-                service = Service(ChromeDriverManager(chrome_type=ChromeType.CHROMIUM).install())
+                # En local: usa webdriver-manager para descargar el driver correcto automáticamente
+                service = Service(ChromeDriverManager().install())
             
             return webdriver.Chrome(service=service, options=chrome_options)
         elif self.browser_name == "firefox":
