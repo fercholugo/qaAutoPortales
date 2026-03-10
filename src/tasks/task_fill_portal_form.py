@@ -135,6 +135,10 @@ class TaskFillPortalForm:
                         value = RandomGeneratorData.generate_random_phone()
                     else:
                         value = "Test Nombre"
+                        # si el placeholder sugiere numeros, generar un número aleatorio
+                elif input_type == 'number':
+                    value = str(random.randint(100000, 99999999)) # Número aleatorio de 6 a 8 dígitos
+
                 elif input_type == 'email':
                      # Si el input es para validación por correo (id="correo_validar") usa Guerrilla Mail
                     input_id = input_element.get_attribute('id')
