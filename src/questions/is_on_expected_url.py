@@ -9,7 +9,8 @@ class IsOnExpectedUrl:
         # Agrega aquí otras URLs finales válidas según tus portales
         "https://www.google.com/",
         "https://www.google.com.co/",
-        "https://securelogin.hpe.com/swarm.cgi"
+        "https://securelogin.hpe.com/swarm.cgi",
+        "https://app.datawifi.co/easyfi/web/services/logindw.php"
     ]
     
     @staticmethod
