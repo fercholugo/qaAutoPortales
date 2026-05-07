@@ -1,0 +1,14 @@
+[
+  {
+    "id": "portal_normal",
+    "nombre": "Portal Cautivo Normal",
+    "descripcion": "Portal estándar con formulario de registro",
+    "feature_alias": "portal_normal"
+  },
+  {
+    "id": "portal_api",
+    "nombre": "Portal Cautivo API",
+    "descripcion": "Portal con autenticación vía API",
+    "feature_alias": "portal_api"
+  }
+]
