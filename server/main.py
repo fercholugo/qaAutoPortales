@@ -58,7 +58,7 @@ async def run_test(body: RunRequest, background_tasks: BackgroundTasks):
 
     run_id = await database.crear_run(body.portal_id, portal["nombre"], body.escenario)
     background_tasks.add_task(
-        runner.ejecutar_test, run_id, portal["feature_alias"], body.escenario
+        runner.ejecutar_test, run_id, portal["feature_alias"], body.escenario, portal["url"]
     )
     return {"run_id": run_id, "estado": "running"}
 

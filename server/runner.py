@@ -42,7 +42,7 @@ def _aplicar_personalizacion(report_path: Path):
         print(f"[Runner] Personalización omitida: {e}")
 
 
-async def ejecutar_test(run_id: str, feature_alias: str, escenario: str):
+async def ejecutar_test(run_id: str, feature_alias: str, escenario: str, portal_url: str | None = None):
     """
     Lanza pytest en background, captura stdout línea a línea,
     actualiza SQLite al terminar y señala fin del stream.
@@ -81,6 +81,8 @@ async def ejecutar_test(run_id: str, feature_alias: str, escenario: str):
         "FEATURE_ALIAS": feature_alias,
         "SCENARIO_KEYWORD": escenario or "",
     }
+    if portal_url and escenario == "unico":
+        env["PORTAL_URL"] = portal_url
 
     await _emit(f"[QA Runner] Portal: {feature_alias} | Escenario: {escenario or 'todos'}\n")
     await _emit(f"[QA Runner] Comando: {' '.join(cmd[2:])}\n\n")

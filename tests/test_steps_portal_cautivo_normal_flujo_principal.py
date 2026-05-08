@@ -27,6 +27,7 @@ def step_open_portal(contexto, nombre_actor, navegador, url, request):
     """
     Inicializa el actor y, si corresponde, arranca la grabación de video.
     """
+    url = os.getenv("PORTAL_URL", url)  # override desde web UI si está definida
     form_data = {"url": url}
     contexto['actor'] = Actor(nombre_actor).can(BrowseTheWeb(navegador))
     contexto['form_data'] = form_data
