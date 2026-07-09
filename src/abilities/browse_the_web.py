@@ -17,8 +17,10 @@ class BrowseTheWeb:
         if self.browser_name == "chrome":
             chrome_options = Options()
 
-            # Solo headless en Docker
-            if os.path.exists('/.dockerenv'):
+            # Solo headless cuando existe el chromedriver de sistema (imagen Docker/Railway).
+            # No usar /.dockerenv: en el runtime real de Railway ese archivo no existe,
+            # aunque sí estemos en un contenedor, y eso hacía caer siempre a la rama local.
+            if os.path.exists(os.environ.get("CHROMEDRIVER_BIN", "/usr/bin/chromedriver")):
                 chrome_options.add_argument("--headless=new")
                 chrome_options.add_argument("--no-sandbox")
                 chrome_options.add_argument("--disable-dev-shm-usage")
