@@ -57,6 +57,7 @@ async def ejecutar_test(run_id: str, feature_alias: str, escenario: str, portal_
     async def _emit(line: str):
         output_store[run_id].append(line)
         await output_queues[run_id].put(line)
+        print(line, end="", flush=True)
 
     if feature_alias not in FEATURE_MAP:
         await _emit(f"[Error] Feature alias no reconocido: {feature_alias}\n")
