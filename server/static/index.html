@@ -195,6 +195,11 @@
   <button id="btn-run" disabled>▶ Ejecutar prueba</button>
 </div>
 
+<!-- Salida en vivo (temporal, para diagnóstico) -->
+<div class="card" id="live-output-section" style="display:none">
+  <h2>Salida en vivo</h2>
+  <pre id="live-output" style="max-height:320px;overflow-y:auto;white-space:pre-wrap;font-size:0.78rem;color:#94a3b8;background:#0f1117;padding:12px;border-radius:8px;border:1px solid #374151;"></pre>
+</div>
 
 <!-- Historial -->
 <div class="card" id="history-section">
@@ -225,6 +230,8 @@
   const btnDeselect      = document.getElementById('btn-deselect');
   const historySection   = document.getElementById('history-section');
   const historyBody      = document.getElementById('history-body');
+  const liveOutputSection= document.getElementById('live-output-section');
+  const liveOutput       = document.getElementById('live-output');
 
   let portalesData = [];
 
@@ -317,9 +324,14 @@
     })
     .then(r => r.json())
     .then(({ run_id }) => new Promise(resolve => {
+      liveOutput.textContent = '';
+      liveOutputSection.style.display = 'block';
       const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const ws = new WebSocket(`${wsProtocol}//${location.host}/live/${run_id}`);
-      ws.onmessage = () => {};
+      ws.onmessage = (e) => {
+        liveOutput.textContent += e.data;
+        liveOutput.scrollTop = liveOutput.scrollHeight;
+      };
       ws.onclose = () => resolve();
     }));
   }
