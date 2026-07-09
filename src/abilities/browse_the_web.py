@@ -20,7 +20,11 @@ class BrowseTheWeb:
                 chrome_options.add_argument("--disable-dev-shm-usage")
                 chrome_options.add_argument("--disable-gpu")
                 chrome_options.binary_location = os.environ.get("CHROME_BIN", "/usr/bin/chromium")
-                service = Service(os.environ.get("CHROMEDRIVER_BIN", "/usr/bin/chromedriver"))
+                service = Service(
+                    os.environ.get("CHROMEDRIVER_BIN", "/usr/bin/chromedriver"),
+                    service_args=["--verbose"],
+                    log_output="/tmp/chromedriver_debug.log",
+                )
             else:
                 # En local: usa webdriver-manager para descargar el driver correcto automáticamente
                 service = Service(ChromeDriverManager().install())
