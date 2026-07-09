@@ -33,15 +33,31 @@ class BrowseTheWeb:
                 # mientras que chromedriver standalone + Remote funciona consistentemente.
                 chromedriver_bin = os.environ.get("CHROMEDRIVER_BIN", "/usr/bin/chromedriver")
                 port = 9515
+                print(f"[BrowseTheWeb] Lanzando chromedriver: {chromedriver_bin} --port={port}", flush=True)
                 self._chromedriver_process = subprocess.Popen([chromedriver_bin, f"--port={port}"])
-                for _ in range(30):
+                print(f"[BrowseTheWeb] chromedriver PID: {self._chromedriver_process.pid}", flush=True)
+
+                listo = False
+                for intento in range(30):
+                    if self._chromedriver_process.poll() is not None:
+                        raise RuntimeError(
+                            f"chromedriver murió antes de responder (código {self._chromedriver_process.returncode})"
+                        )
                     try:
                         requests.get(f"http://localhost:{port}/status", timeout=1)
+                        listo = True
+                        print(f"[BrowseTheWeb] chromedriver listo tras {intento} intentos", flush=True)
                         break
                     except requests.exceptions.ConnectionError:
                         time.sleep(0.5)
 
-                return webdriver.Remote(command_executor=f"http://localhost:{port}", options=chrome_options)
+                if not listo:
+                    raise RuntimeError("chromedriver no respondio en /status tras 15s")
+
+                print("[BrowseTheWeb] Conectando webdriver.Remote...", flush=True)
+                driver = webdriver.Remote(command_executor=f"http://localhost:{port}", options=chrome_options)
+                print("[BrowseTheWeb] Sesion de Chrome creada OK", flush=True)
+                return driver
             else:
                 # En local: usa webdriver-manager para descargar el driver correcto automáticamente
                 service = Service(ChromeDriverManager().install())
