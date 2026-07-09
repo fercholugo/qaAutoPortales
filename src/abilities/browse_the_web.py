@@ -70,7 +70,6 @@ class BrowseTheWeb:
             options = None
             try:
                 driver = webdriver.Safari()
-                import time
                 time.sleep(1)
                 return driver
             except Exception as e:
