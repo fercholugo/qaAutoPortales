@@ -317,7 +317,8 @@
     })
     .then(r => r.json())
     .then(({ run_id }) => new Promise(resolve => {
-      const ws = new WebSocket(`ws://${location.host}/live/${run_id}`);
+      const wsProtocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const ws = new WebSocket(`${wsProtocol}//${location.host}/live/${run_id}`);
       ws.onmessage = () => {};
       ws.onclose = () => resolve();
     }));
