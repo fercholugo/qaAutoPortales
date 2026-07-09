@@ -37,9 +37,12 @@ def step_open_portal(contexto, nombre_actor, navegador, url, request):
         alias = os.getenv("FEATURE_ALIAS", "portal_normal")
         keyword = os.getenv("SCENARIO_KEYWORD", "run")
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        videos_dir = "reporte_html/videos_ejecuciones"
+        # Si VIDEO_DIR está definido (llamada desde web UI), usa ese directorio con nombre fijo.
+        # Si no (CLI), usa el directorio histórico con nombre que incluye timestamp.
+        videos_dir = os.getenv("VIDEO_DIR", "reporte_html/videos_ejecuciones")
         os.makedirs(videos_dir, exist_ok=True)
-        video_path = os.path.join(videos_dir, f"{alias}_{keyword}_{ts}.mp4")
+        nombre = "evidencia.mp4" if os.getenv("VIDEO_DIR") else f"{alias}_{keyword}_{ts}.mp4"
+        video_path = os.path.join(videos_dir, nombre)
 
         driver = contexto['actor'].ability_to(BrowseTheWeb).driver
         intervalo = float(os.getenv("VIDEO_INTERVAL", "0.5"))  # Ajustable

@@ -21,10 +21,17 @@ async def init_db():
                 escenario    TEXT NOT NULL,
                 estado       TEXT NOT NULL DEFAULT 'running',
                 ruta_reporte TEXT,
+                ruta_video   TEXT,
                 duracion_seg REAL,
-                log          TEXT
+                log          TEXT,
+                resultados   TEXT
             )
         """)
+        for col in ("ruta_video", "resultados"):
+            try:
+                await db.execute(f"ALTER TABLE runs ADD COLUMN {col} TEXT")
+            except Exception:
+                pass  # columna ya existe
         await db.commit()
 
 
@@ -47,13 +54,15 @@ async def actualizar_run(
     estado: str,
     ruta_reporte: str | None,
     duracion_seg: float,
-    log: str
+    log: str,
+    ruta_video: str | None = None,
+    resultados: str | None = None,
 ):
-    """Actualiza estado, ruta del reporte, duración y log completo."""
+    """Actualiza estado, rutas, duración, log y resultados por portal."""
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
-            "UPDATE runs SET estado=?, ruta_reporte=?, duracion_seg=?, log=? WHERE id=?",
-            (estado, ruta_reporte, duracion_seg, log, run_id)
+            "UPDATE runs SET estado=?, ruta_reporte=?, ruta_video=?, duracion_seg=?, log=?, resultados=? WHERE id=?",
+            (estado, ruta_reporte, ruta_video, duracion_seg, log, resultados, run_id)
         )
         await db.commit()
 
@@ -63,7 +72,7 @@ async def listar_runs(limit: int = 20):
     async with aiosqlite.connect(DB_PATH) as db:
         db.row_factory = aiosqlite.Row
         async with db.execute(
-            "SELECT id, fecha, portal_nombre, escenario, estado, ruta_reporte, duracion_seg "
+            "SELECT id, fecha, portal_nombre, escenario, estado, ruta_reporte, ruta_video, duracion_seg, resultados "
             "FROM runs ORDER BY fecha DESC LIMIT ?",
             (limit,)
         ) as cursor:

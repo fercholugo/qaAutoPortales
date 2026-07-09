@@ -20,12 +20,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia el proyecto completo
 COPY . .
 
-# Crea directorio para reportes y videos
+# Crea directorio para reportes y videos (se sobreescribe con volumen en Railway)
 RUN mkdir -p reporte_html/videos_ejecuciones
 
-# Establece variables de entorno para Chrome headless
+# Variables de entorno para Chrome headless en contenedor
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROMEDRIVER_BIN=/usr/bin/chromedriver
 
-# Comando por defecto
-CMD ["python", "-m", "pytest", "tests/", "-v", "--html=reporte_html/reporte.html", "--self-contained-html"]
+# Arranca el servidor web; Railway inyecta PORT automáticamente
+CMD ["sh", "-c", "uvicorn server.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

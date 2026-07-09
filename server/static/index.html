@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>QA Auto Portales</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -48,26 +49,43 @@
     }
     select:focus, input:focus { border-color: #6366f1; }
 
-    .radio-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 4px;
+    /* Portal Picker */
+    .portal-picker { margin-top: 4px; background: #0f1117; border: 1px solid #374151; border-radius: 8px; overflow: hidden; }
+    .portal-picker-toggle {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 12px; cursor: pointer; user-select: none; transition: background .15s;
     }
-    .radio-group label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin: 0;
-      cursor: pointer;
-      background: #0f1117;
-      border: 1px solid #374151;
-      border-radius: 8px;
-      padding: 10px 16px;
-      flex: 1;
-      transition: border-color .2s, background .2s;
+    .portal-picker-toggle:hover { background: #1a2035; }
+    .portal-toggle-label { font-size: 0.88rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 88%; }
+    .portal-toggle-label.has-selection { color: #e2e8f0; }
+    .toggle-arrow { color: #64748b; font-size: 1.1rem; transition: transform .2s; flex-shrink: 0; }
+    .portal-picker.open .toggle-arrow { transform: rotate(180deg); }
+    .portal-picker-body { display: none; border-top: 1px solid #374151; }
+    .portal-picker.open .portal-picker-body { display: block; }
+    .portal-picker-top {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-bottom: 1px solid #374151;
     }
-    .radio-group input[type=radio] { accent-color: #6366f1; width: 16px; height: 16px; }
-    .radio-group label:has(input:checked) { border-color: #6366f1; background: #1e1f3a; }
+    .portal-picker-top span { font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .ctrl-btn {
+      background: transparent; border: 1px solid #374151; color: #94a3b8;
+      border-radius: 6px; padding: 3px 10px; font-size: 0.74rem; cursor: pointer;
+      margin-left: 6px; transition: border-color .2s, color .2s; width: auto;
+    }
+    .ctrl-btn:hover { border-color: #6366f1; color: #a5b4fc; }
+    #portal-search { border: none !important; border-bottom: 1px solid #374151 !important; border-radius: 0 !important; font-size: 0.85rem; }
+    #portal-search:focus { border-bottom-color: #6366f1 !important; }
+    .portal-list { max-height: 160px; overflow-y: auto; }
+    .portal-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+      cursor: pointer; font-size: 0.9rem; color: #cbd5e1;
+      border-bottom: 1px solid #1e2330; transition: background .15s;
+    }
+    .portal-item:last-child { border-bottom: none; }
+    .portal-item:hover { background: #1a2035; }
+    .portal-item:has(input:checked) { background: #1e1f3a; color: #e2e8f0; }
+    .portal-item input[type=checkbox] { accent-color: #6366f1; width: 16px; height: 16px; flex-shrink: 0; }
+    .portal-item.hidden { display: none; }
 
     button#btn-run {
       width: 100%;
@@ -84,55 +102,6 @@
     }
     button#btn-run:hover:not(:disabled) { background: #4f46e5; }
     button#btn-run:disabled { opacity: .5; cursor: not-allowed; }
-
-    #output-card { display: none; }
-
-    #status-bar {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge-running { background: #1d4ed8; color: #bfdbfe; }
-    .badge-done    { background: #15803d; color: #bbf7d0; }
-    .badge-error   { background: #b91c1c; color: #fecaca; }
-
-    #terminal {
-      background: #0a0c10;
-      border: 1px solid #1f2937;
-      border-radius: 8px;
-      padding: 16px;
-      height: 340px;
-      overflow-y: auto;
-      font-family: "Fira Code", "Courier New", monospace;
-      font-size: 0.8rem;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      word-break: break-all;
-      color: #a3e635;
-    }
-
-    #report-link {
-      display: none;
-      margin-top: 14px;
-      padding: 12px 16px;
-      background: #14532d;
-      border: 1px solid #16a34a;
-      border-radius: 8px;
-      color: #4ade80;
-      font-weight: 600;
-      text-decoration: none;
-      text-align: center;
-    }
-    #report-link:hover { background: #166534; }
 
     /* History */
     #history-section { display: none; }
@@ -168,11 +137,25 @@
       width: 8px; height: 8px;
       border-radius: 50%;
       display: inline-block;
-      margin-right: 6px;
+      flex-shrink: 0;
     }
     .dot-running { background: #3b82f6; animation: pulse 1s infinite; }
     .dot-done    { background: #22c55e; }
     .dot-error   { background: #ef4444; }
+
+    .estado-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .estado-item + .estado-item { margin-top: 4px; }
+
+    .reporte-links {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
 
     @keyframes pulse {
       0%, 100% { opacity: 1; } 50% { opacity: .3; }
@@ -190,35 +173,28 @@
 <div class="card">
   <h2>Nueva ejecución</h2>
 
-  <label for="portal-select">Portal a probar</label>
-  <select id="portal-select">
-    <option value="">Cargando portales...</option>
-  </select>
-
-  <label>Escenario</label>
-  <div class="radio-group">
-    <label>
-      <input type="radio" name="escenario" value="unico" checked />
-      Único
-    </label>
-    <label>
-      <input type="radio" name="escenario" value="varios" />
-      Varios
-    </label>
+  <label>Portal(es) a probar</label>
+  <div class="portal-picker" id="portal-picker">
+    <div class="portal-picker-toggle" id="portal-picker-toggle">
+      <span class="portal-toggle-label" id="portal-toggle-label">Selecciona portal(es)</span>
+      <span class="toggle-arrow">▾</span>
+    </div>
+    <div class="portal-picker-body">
+      <div class="portal-picker-top">
+        <span id="portal-count-label">Cargando...</span>
+        <div>
+          <button type="button" class="ctrl-btn" id="btn-select-all">Seleccionar todos</button>
+          <button type="button" class="ctrl-btn" id="btn-deselect">Deseleccionar</button>
+        </div>
+      </div>
+      <input type="text" id="portal-search" placeholder="Buscar portal..." />
+      <div id="portal-list"></div>
+    </div>
   </div>
 
   <button id="btn-run" disabled>▶ Ejecutar prueba</button>
 </div>
 
-<!-- Output en vivo -->
-<div class="card" id="output-card">
-  <div id="status-bar">
-    <span id="status-badge" class="badge badge-running">Running</span>
-    <span id="run-label" style="color:#64748b;font-size:.85rem;"></span>
-  </div>
-  <div id="terminal"></div>
-  <a id="report-link" href="#" target="_blank">📄 Ver reporte completo</a>
-</div>
 
 <!-- Historial -->
 <div class="card" id="history-section">
@@ -228,7 +204,6 @@
       <tr>
         <th>Fecha</th>
         <th>Portal</th>
-        <th>Escenario</th>
         <th>Estado</th>
         <th>Duración</th>
         <th>Reporte</th>
@@ -239,79 +214,154 @@
 </div>
 
 <script>
-  const btnRun     = document.getElementById('btn-run');
-  const portalSel  = document.getElementById('portal-select');
-  const terminal   = document.getElementById('terminal');
-  const outputCard = document.getElementById('output-card');
-  const statusBadge= document.getElementById('status-badge');
-  const runLabel   = document.getElementById('run-label');
-  const reportLink = document.getElementById('report-link');
-  const historySection = document.getElementById('history-section');
-  const historyBody    = document.getElementById('history-body');
+  const btnRun           = document.getElementById('btn-run');
+  const portalPicker     = document.getElementById('portal-picker');
+  const portalToggle     = document.getElementById('portal-picker-toggle');
+  const portalToggleLabel= document.getElementById('portal-toggle-label');
+  const portalList       = document.getElementById('portal-list');
+  const portalCountLabel = document.getElementById('portal-count-label');
+  const portalSearch     = document.getElementById('portal-search');
+  const btnSelectAll     = document.getElementById('btn-select-all');
+  const btnDeselect      = document.getElementById('btn-deselect');
+  const historySection   = document.getElementById('history-section');
+  const historyBody      = document.getElementById('history-body');
 
-  // ── Carga portales ──────────────────────────────────────────────
+  let portalesData = [];
+
+  // ── Carga portales como checkboxes ─────────────────────────────
   fetch('/portales')
     .then(r => r.json())
     .then(portales => {
-      portalSel.innerHTML = portales.map(p =>
-        `<option value="${p.id}">${p.nombre}</option>`
+      portalesData = portales;
+      portalList.innerHTML = portales.map(p =>
+        `<label class="portal-item">
+          <input type="checkbox" name="portal" value="${p.id}" />
+          ${p.nombre}
+        </label>`
       ).join('');
-      btnRun.disabled = false;
+      portalList.querySelectorAll('input').forEach(cb =>
+        cb.addEventListener('change', updateBtnState)
+      );
+      updateCount();
     })
-    .catch(() => { portalSel.innerHTML = '<option value="">Error al cargar portales</option>'; });
+    .catch(() => {
+      portalCountLabel.textContent = 'Error al cargar';
+      portalList.innerHTML = '<span style="color:#ef4444;padding:10px 12px;display:block">Error al cargar portales</span>';
+    });
+
+  function getChecked() {
+    return [...portalList.querySelectorAll('input:checked')].map(cb => cb.value);
+  }
+
+  function updateCount() {
+    const total   = portalList.querySelectorAll('input').length;
+    const checked = getChecked().length;
+    portalCountLabel.textContent = checked > 0
+      ? `${checked} de ${total} seleccionado${checked !== 1 ? 's' : ''}`
+      : `${total} portal${total !== 1 ? 'es' : ''} disponible${total !== 1 ? 's' : ''}`;
+    // Actualiza el label del toggle con los nombres seleccionados
+    const names = getChecked().map(id => (portalesData.find(p => p.id === id) || {}).nombre || id);
+    portalToggleLabel.textContent = names.length > 0 ? names.join(', ') : 'Selecciona portal(es)';
+    portalToggleLabel.classList.toggle('has-selection', names.length > 0);
+  }
+
+  function updateBtnState() {
+    btnRun.disabled = getChecked().length === 0;
+    updateCount();
+  }
+
+  // ── Abrir / cerrar picker ───────────────────────────────────────
+  portalToggle.addEventListener('click', () => {
+    portalPicker.classList.toggle('open');
+  });
+
+  // ── Buscar portal ───────────────────────────────────────────────
+  portalSearch.addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    portalList.querySelectorAll('.portal-item').forEach(item => {
+      item.classList.toggle('hidden', !item.textContent.toLowerCase().includes(q));
+    });
+  });
+
+  // ── Seleccionar todos los visibles / Deseleccionar ──────────────
+  btnSelectAll.addEventListener('click', () => {
+    portalList.querySelectorAll('.portal-item:not(.hidden) input').forEach(cb => { cb.checked = true; });
+    updateBtnState();
+  });
+  btnDeselect.addEventListener('click', () => {
+    portalList.querySelectorAll('input').forEach(cb => { cb.checked = false; });
+    updateBtnState();
+  });
 
   // ── Ejecutar prueba ─────────────────────────────────────────────
   btnRun.addEventListener('click', async () => {
-    const portalId  = portalSel.value;
-    const escenario = document.querySelector('input[name=escenario]:checked').value;
-    if (!portalId) return;
+    const checkedIds = getChecked();
+    if (!checkedIds.length) return;
 
     btnRun.disabled = true;
-    terminal.textContent = '';
-    reportLink.style.display = 'none';
-    outputCard.style.display  = 'block';
-    statusBadge.className     = 'badge badge-running';
-    statusBadge.textContent   = 'Running';
-    runLabel.textContent      = `${portalSel.options[portalSel.selectedIndex].text} — ${escenario}`;
+    btnRun.textContent = '⏳ Ejecutando...';
 
-    // Lanza el run
-    const res = await fetch('/run', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ portal_id: portalId, escenario })
-    });
-    const { run_id } = await res.json();
+    await lanzarRun({ portal_ids: checkedIds, escenario: 'varios' });
 
-    // Conecta WebSocket para streaming
-    const ws = new WebSocket(`ws://${location.host}/live/${run_id}`);
-    ws.onmessage = ({ data }) => {
-      terminal.textContent += data;
-      terminal.scrollTop = terminal.scrollHeight;
-    };
-    ws.onclose = async () => {
-      // Consulta estado final
-      const s = await fetch(`/status/${run_id}`).then(r => r.json());
-      if (s.estado === 'done') {
-        statusBadge.className   = 'badge badge-done';
-        statusBadge.textContent = 'Completado';
-        if (s.ruta_reporte) {
-          reportLink.href         = `/reportes/${s.ruta_reporte}`;
-          reportLink.style.display = 'block';
-        }
-      } else {
-        statusBadge.className   = 'badge badge-error';
-        statusBadge.textContent = 'Error';
-      }
-      btnRun.disabled = false;
-      loadHistory();
-    };
+    loadHistory();
+    btnRun.disabled = false;
+    btnRun.textContent = '▶ Ejecutar prueba';
   });
+
+  // ── Lanza un run (único o batch) y transmite su WebSocket ───────
+  function lanzarRun(payload) {
+    return fetch('/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    .then(r => r.json())
+    .then(({ run_id }) => new Promise(resolve => {
+      const ws = new WebSocket(`ws://${location.host}/live/${run_id}`);
+      ws.onmessage = () => {};
+      ws.onclose = () => resolve();
+    }));
+  }
 
   // ── Historial ───────────────────────────────────────────────────
   function dotClass(estado) {
-    if (estado === 'done')    return 'dot dot-done';
-    if (estado === 'error')   return 'dot dot-error';
+    if (estado === 'done')  return 'dot dot-done';
+    if (estado === 'error') return 'dot dot-error';
     return 'dot dot-running';
+  }
+
+  function estadoLabel(est) {
+    return est === 'done' ? 'OK' : est === 'error' ? 'FALLO' : est;
+  }
+
+  function renderEstado(r) {
+    if (r.resultados) {
+      let res;
+      try { res = JSON.parse(r.resultados); } catch { res = null; }
+      if (res && typeof res === 'object') {
+        return Object.entries(res).map(([, est]) =>
+          `<div class="estado-item"><span class="dot ${dotClass(est)}"></span><span>${estadoLabel(est)}</span></div>`
+        ).join('');
+      }
+    }
+    return `<div class="estado-item"><span class="dot ${dotClass(r.estado)}"></span><span>${estadoLabel(r.estado)}</span></div>`;
+  }
+
+  function renderReportes(ruta_reporte, portal_nombre) {
+    if (!ruta_reporte) return '—';
+    let rutas;
+    try { rutas = JSON.parse(ruta_reporte); if (!Array.isArray(rutas)) rutas = [ruta_reporte]; }
+    catch { rutas = [ruta_reporte]; }
+    return rutas.map((r, i) => {
+      let label;
+      if (rutas.length === 1) {
+        label = portal_nombre || 'Ver';
+      } else {
+        const pid = r.split('/')[2];
+        label = (portalesData.find(p => p.id === pid) || {}).nombre || `Ver ${i + 1}`;
+      }
+      return `<a class="report-btn" href="/reportes/${r}" target="_blank">${label}</a>`;
+    }).join('');
   }
 
   function loadHistory() {
@@ -323,13 +373,10 @@
         historyBody.innerHTML = runs.map(r => `
           <tr>
             <td>${r.fecha}</td>
-            <td>${r.portal_nombre}</td>
-            <td>${r.escenario}</td>
-            <td><span class="dot ${dotClass(r.estado)}"></span>${r.estado}</td>
+            <td>${r.portal_nombre.split(', ').map(n => `<div>${n}</div>`).join('')}</td>
+            <td>${renderEstado(r)}</td>
             <td>${r.duracion_seg != null ? r.duracion_seg + 's' : '—'}</td>
-            <td>${r.ruta_reporte
-              ? `<a class="report-btn" href="/reportes/${r.ruta_reporte}" target="_blank">Ver</a>`
-              : '—'}</td>
+            <td><div class="reporte-links">${renderReportes(r.ruta_reporte, r.portal_nombre)}</div></td>
           </tr>`).join('');
       });
   }

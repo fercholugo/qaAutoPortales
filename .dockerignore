@@ -12,4 +12,7 @@ dist/
 build/
 .DS_Store
 node_modules/
-reporte_html/reporte.html
+reporte_html/
+allure-report/
+allure-results/
+docs/session-checkpoints/

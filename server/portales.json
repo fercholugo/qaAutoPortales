@@ -1,13 +1,13 @@
 [
   {
-    "id": "p_bancolombia",
-    "nombre": "Portal Bancolombia",
+    "id": "p_bancoagrario",
+    "nombre": "Bancoagrario",
     "url": "https://app.datawifi.co/easyfi/web/app.php/portal?called=28534eae4400&mac=",
     "feature_alias": "portal_normal"
   },
   {
-    "id": "p_bancoagrario",
-    "nombre": "Portal Bancoagrario",
+    "id": "p_bancolombia",
+    "nombre": "Bancolombia",
     "url": "https://app.datawifi.co/easyfi/web/app.php/portal?called=54a274105f40&mac=",
     "feature_alias": "portal_normal"
   },
@@ -15,6 +15,12 @@
     "id": "p_centros",
     "nombre": "Centros Digitales",
     "url": "https://app.datawifi.co/easyfi/web/app.php/portal?called=2cc81ba2565e&mac=",
+    "feature_alias": "portal_normal"
+  },
+  {
+    "id": "p_santander_mex",
+    "nombre": "Santander Mexico",
+    "url": "https://app.datawifi.co/easyfi/web/app.php/portal?called=b01f8cc3c8aa&mac=",
     "feature_alias": "portal_normal"
   }
 ]

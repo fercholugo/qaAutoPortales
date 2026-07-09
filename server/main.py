@@ -32,7 +32,8 @@ app.mount("/reportes", StaticFiles(directory=str(REPORTE_DIR)), name="reportes")
 
 
 class RunRequest(BaseModel):
-    portal_id: str
+    portal_id: str = ""
+    portal_ids: list[str] = []
     escenario: str = "unico"
 
 
@@ -52,14 +53,28 @@ async def run_test(body: RunRequest, background_tasks: BackgroundTasks):
     with open(PORTALES_FILE, encoding="utf-8") as f:
         portales = json.load(f)
 
-    portal = next((p for p in portales if p["id"] == body.portal_id), None)
-    if not portal:
-        raise HTTPException(status_code=400, detail="Portal no encontrado")
-
-    run_id = await database.crear_run(body.portal_id, portal["nombre"], body.escenario)
-    background_tasks.add_task(
-        runner.ejecutar_test, run_id, portal["feature_alias"], body.escenario, portal["url"]
-    )
+    if body.portal_ids and body.escenario == "varios":
+        # Run batch: un solo pytest con Scenario Outline filtrado por portales seleccionados
+        sel = [p for p in portales if p["id"] in body.portal_ids]
+        if not sel:
+            raise HTTPException(status_code=400, detail="Portales no encontrados")
+        nombres = ", ".join(p["nombre"] for p in sel)
+        portales_batch = [{"id": p["id"], "url": p["url"]} for p in sel]
+        feature_alias = sel[0]["feature_alias"]
+        run_id = await database.crear_run("varios", nombres, body.escenario)
+        background_tasks.add_task(
+            runner.ejecutar_test, run_id, feature_alias, "varios", portales_batch=portales_batch
+        )
+    else:
+        # Run único: un portal específico
+        pid = body.portal_ids[0] if body.portal_ids else body.portal_id
+        portal = next((p for p in portales if p["id"] == pid), None)
+        if not portal:
+            raise HTTPException(status_code=400, detail="Portal no encontrado")
+        run_id = await database.crear_run(pid, portal["nombre"], body.escenario)
+        background_tasks.add_task(
+            runner.ejecutar_test, run_id, portal["feature_alias"], body.escenario, portal["url"]
+        )
     return {"run_id": run_id, "estado": "running"}
 
 
