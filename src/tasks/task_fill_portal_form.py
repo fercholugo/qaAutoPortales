@@ -70,6 +70,9 @@ class TaskFillPortalForm:
         # Detectar el portal por input#nombre_portal (hidden con valor identificable)
         nombre_portal = ""
         try:
+            WebDriverWait(driver, 10).until(
+                lambda d: d.find_element(By.ID, "nombre_portal").get_attribute("value")
+            )
             nombre_portal = driver.find_element(By.ID, "nombre_portal").get_attribute("value") or ""
             TaskFillPortalForm.log_and_print(f"[Task] Portal detectado: {nombre_portal}")
         except Exception:
