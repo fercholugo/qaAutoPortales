@@ -1,6 +1,6 @@
 ---
 name: actualizar-portal
-description: Diagnostica por qué falla un portal cautivo en qa-auto-portales (o agrega uno nuevo) usando la evidencia real de la ejecución (pagina.html, video, reporte), y propone el ajuste mínimo a la lógica determinista de detección/interacción. Activar cuando el usuario diga "el portal X esta fallando", "agregar portal nuevo", "actualicemos el flujo de X", "por que falla [portal]", o pida ayuda de mantenimiento sobre un portal cautivo específico.
+description: Diagnostica por qué falla un portal cautivo en qa-auto-portales (o agrega uno nuevo) usando la evidencia real de la ejecución (pagina.html, video, reporte), y propone el ajuste mínimo a la lógica determinista de detección/interacción. Activar SIEMPRE que el usuario escriba las frases "sk actualizar portal X", "sk agregar portal X", o "sk portal falla X" (X = nombre del portal) — estas son las frases de activación preferidas del usuario, tratarlas como comando directo sin pedir aclaración. También activar si dice "el portal X esta fallando", "agregar portal nuevo", "actualicemos el flujo de X", "por que falla [portal]", o pida ayuda de mantenimiento sobre un portal cautivo específico.
 ---
 
 # Actualizar / diagnosticar flujo de un portal cautivo
