@@ -22,5 +22,11 @@
     "nombre": "Santander Mexico",
     "url": "https://app.datawifi.co/easyfi/web/app.php/portal?called=b01f8cc3c8aa&mac=",
     "feature_alias": "portal_normal"
+  },
+  {
+    "id": "p_sitwifi",
+    "nombre": "Sitwifi",
+    "url": "https://app.datawifi.co/easyfi/web/app.php/portal?called=5cdf8930f2a0&mac=",
+    "feature_alias": "portal_normal"
   }
 ]
