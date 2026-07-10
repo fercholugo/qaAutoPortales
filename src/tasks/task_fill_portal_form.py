@@ -276,20 +276,23 @@ class TaskFillPortalForm:
                 TaskFillPortalForm.log_and_print(f"[Task] No se pudo guardar HTML del panel: {e}")
             # --- FIN NUEVO ---
 
-            # --- NUEVO: Esperar a que video(s) obligatorio(s) del panel terminen antes de continuar ---
-            videos_html5 = panel.find_elements(By.TAG_NAME, "video")
-            if videos_html5:
-                TaskFillPortalForm.log_and_print(f"[Task] {len(videos_html5)} video(s) detectado(s), esperando a que terminen...")
+            # --- NUEVO: Si hay un video de YouTube obligatorio, reproducirlo y esperar a que termine ---
+            youtube_iframes = panel.find_elements(By.CSS_SELECTOR, "iframe.youtube_video")
+            for iframe in youtube_iframes:
+                iframe_id = iframe.get_attribute("id")
+                TaskFillPortalForm.log_and_print(f"[Task] Video de YouTube obligatorio detectado (iframe id={iframe_id}), reproduciendo...")
+                driver.execute_script(
+                    "arguments[0].contentWindow.postMessage(JSON.stringify({event:'command', func:'playVideo', args:''}), '*');",
+                    iframe,
+                )
+                flag_id = iframe_id.replace("youtubeframe", "")
                 try:
-                    WebDriverWait(driver, 60).until(
-                        lambda d: all(
-                            d.execute_script("return arguments[0].ended === true;", v)
-                            for v in videos_html5
-                        )
+                    WebDriverWait(driver, 90).until(
+                        lambda d: (panel.find_element(By.ID, flag_id).get_attribute("value") or "0") == "1"
                     )
-                    TaskFillPortalForm.log_and_print("[Task] Video(s) finalizado(s).")
-                except TimeoutException:
-                    TaskFillPortalForm.log_and_print("[Task] Los videos no terminaron tras 60s, se continúa de todos modos.")
+                    TaskFillPortalForm.log_and_print("[Task] Video finalizado (flag actualizado).")
+                except Exception:
+                    TaskFillPortalForm.log_and_print("[Task] El video no confirmó finalización tras 90s, se continúa de todos modos.")
             # --- FIN NUEVO ---
 
             # Botones continuar
