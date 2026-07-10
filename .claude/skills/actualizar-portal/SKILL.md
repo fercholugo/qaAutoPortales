@@ -59,6 +59,15 @@ Busca todas las ocurrencias de la clase (puede no ser la primera clase en el atr
 - Qué atributo identifica su acción (ej. `data-nombrebloque`, `.url_redireccion`).
 - **No confíes en el texto visible** ("Soy Cliente" puede ser una imagen/CSS, no texto plano en el DOM).
 
+### Paso 5.5 — Descartar que sea un error del backend del portal (fuera de alcance)
+
+Antes de comparar contra el código, revisa si `pagina.html` es en realidad una **pantalla de error genérica del portal**, no el formulario esperado. Señales típicas:
+- `<title>Error</title>` (o similar) en vez del título normal del portal.
+- Sin `#nombre_portal`, sin `div.bloque`, sin ningún `panel_portal` — la página está vacía de esos elementos porque nunca llegó a cargar el flujo real.
+- Texto tipo "problema de configuración", "el dispositivo no está asignado a una zona", o mensajes dirigidos al administrador de la red (no al usuario final).
+
+Si ves esto: **no es un bug de detección ni de código**. Es un problema de aprovisionamiento del identificador `called=` (o del MAC) en el sistema del portal/red — algo que corregir con el administrador del portal, no con un ajuste a `task_fill_portal_form.py`. Repórtalo así al usuario y detente aquí; no propongas un fix de código para este caso.
+
 ### Paso 6 — Comparar contra el código actual
 
 Lee el `if/elif` en `src/tasks/task_fill_portal_form.py` (busca `nombre_portal.lower()`) y compara contra lo que encontraste en los pasos 4-5. El mismatch suele ser uno de estos tres:
