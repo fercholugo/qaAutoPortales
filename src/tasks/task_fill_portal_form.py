@@ -89,6 +89,9 @@ class TaskFillPortalForm:
                 elif "bancoagrario" in nombre_portal.lower() and len(bloques) > 1:
                     bloque_seleccionado = bloques[1]  # "Correo"
                     TaskFillPortalForm.log_and_print("[Task] Portal Banco Agrario → seleccionando bloque 'Correo'.")
+                elif "santander" in nombre_portal.lower():
+                    bloque_seleccionado = bloques[0]  # "Soy Cliente"
+                    TaskFillPortalForm.log_and_print("[Task] Portal Santander → seleccionando bloque 'Soy Cliente'.")
                 if bloque_seleccionado:
                     driver.execute_script("arguments[0].scrollIntoView();", bloque_seleccionado)
                     driver.execute_script("arguments[0].click();", bloque_seleccionado)
