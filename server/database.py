@@ -2,10 +2,11 @@
 
 import aiosqlite
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 DB_PATH = Path(__file__).parent.parent / "reporte_html" / "qa_history.db"
+COLOMBIA_TZ = timezone(timedelta(hours=-5))
 
 
 async def init_db():
@@ -38,7 +39,7 @@ async def init_db():
 async def crear_run(portal_id: str, portal_nombre: str, escenario: str) -> str:
     """Inserta un nuevo run con estado 'running' y retorna su ID."""
     run_id = str(uuid.uuid4())[:8]
-    fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fecha = datetime.now(COLOMBIA_TZ).strftime("%Y-%m-%d %H:%M:%S")
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute(
             "INSERT INTO runs (id, fecha, portal_id, portal_nombre, escenario, estado) "
