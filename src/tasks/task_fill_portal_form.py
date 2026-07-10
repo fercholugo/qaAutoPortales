@@ -5,6 +5,7 @@ from src.utils.utils_detect_form_elements import detect_form_elements
 import re
 import time
 import random
+import os
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
@@ -262,6 +263,18 @@ class TaskFillPortalForm:
                 else:
                     TaskFillPortalForm.log_and_print("[Task] No se recibió código en el correo temporal, tiempo de espera agotado.")
 #           --- FIN Leer código Guerrilla Mail ---            
+
+            # --- NUEVO: Guardar HTML del panel como evidencia (video/boton continuar) ---
+            try:
+                output_dir = os.getenv("VIDEO_DIR", "reporte_html/videos_ejecuciones")
+                os.makedirs(output_dir, exist_ok=True)
+                panel_html_path = os.path.join(output_dir, f"panel_{panel_idx+1}.html")
+                with open(panel_html_path, "w", encoding="utf-8") as f:
+                    f.write(panel.get_attribute("outerHTML"))
+                TaskFillPortalForm.log_and_print(f"[Task] HTML del panel {panel_idx+1} guardado en: {panel_html_path}")
+            except Exception as e:
+                TaskFillPortalForm.log_and_print(f"[Task] No se pudo guardar HTML del panel: {e}")
+            # --- FIN NUEVO ---
 
             # --- NUEVO: Esperar a que video(s) obligatorio(s) del panel terminen antes de continuar ---
             videos_html5 = panel.find_elements(By.TAG_NAME, "video")
