@@ -86,6 +86,14 @@ Tras la confirmación: aplica el cambio, commitea, pushea (si aplica el flujo de
 - **Si pasa**: confirma que la lógica genérica de `panel_portal` se encargó sola del resto — no se necesitan más cambios para este portal.
 - **Si sigue fallando pero ya pasó de "0 paneles encontrados"** (o sea, ya entra al panel pero falla más adelante, en el llenado de un campo específico o un botón particular): esto es un problema distinto, de personalización dentro del panel, no de selección de bloque pre-portal. Vuelve a los pasos 3-5 pero enfocado en el HTML/log de esa etapa posterior, y trátalo como un caso nuevo de diagnóstico — no asumas que aplica el mismo tipo de fix.
 
+## Lecciones aprendidas (gotchas ya encontrados)
+
+Antes de diagnosticar un caso nuevo, revisa esta lista — puede que ya hayamos visto algo parecido. Agrega una entrada nueva cada vez que se descubra un patrón/tropiezo distinto (síntoma → causa real → qué se hizo), en una sola línea, sin explicaciones largas.
+
+- **Santander México / Telmex**: el portal se identifica en `#nombre_portal` como `"work Cafe preportal@Telmex.mx"`, no contiene "santander". No asumir que el nombre del banco aparece ahí.
+- **Centros Digitales**: página de error del backend (`<title>Error</title>`, "dispositivo no asignado a una zona") — NO es bug de código, es aprovisionamiento del `called=` en el sistema del portal.
+- **Sitwifi**: video obligatorio antes de habilitar "Navegar ahora" — es un iframe de YouTube (`class="youtube_video"`), no una etiqueta `<video>` nativa. El botón nunca queda `disabled`, pero el sitio bloquea la navegación por JS hasta que un flag oculto (`class="banderin_video"`, mismo id numérico que el iframe) pase a `"1"`. Se reproduce vía `postMessage` (`playVideo`) y se espera ese flag — no confiar en un botón "Omitir video" genérico, no siempre existe.
+
 ## Recordatorios de seguridad (heredados de CLAUDE.md)
 
 - Nunca edites `task_fill_portal_form.py`, `portales.json`, u otro archivo sin mostrar el diff exacto y esperar una confirmación explícita ("aplícalo", "procede", "impleméntalo", etc.).
