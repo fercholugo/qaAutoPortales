@@ -1,3 +1,4 @@
+import os
 from selenium.webdriver.common.by import By
 
 def detect_form_elements(driver):
@@ -6,9 +7,16 @@ def detect_form_elements(driver):
     if not panels:
         print("[Screenplay] No se encontraron paneles con id que empiece por 'panel'.")
 
-        # ACTIVAR SI SE QUIERE: Imprimir el HTML completo para diagnóstico
-        #print("[Screenplay] HTML actual:")
-        #print(driver.page_source)
+        # Guarda el HTML completo de la página como evidencia para diagnóstico
+        try:
+            output_dir = os.getenv("VIDEO_DIR", "reporte_html/videos_ejecuciones")
+            os.makedirs(output_dir, exist_ok=True)
+            html_path = os.path.join(output_dir, "pagina.html")
+            with open(html_path, "w", encoding="utf-8") as f:
+                f.write(driver.page_source)
+            print(f"[Screenplay] HTML de la página guardado en: {html_path}")
+        except Exception as e:
+            print(f"[Screenplay] No se pudo guardar el HTML: {e}")
         return
 
     # CAMBIO: Recorrer cada panel encontrado
