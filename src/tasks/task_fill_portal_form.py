@@ -263,6 +263,22 @@ class TaskFillPortalForm:
                     TaskFillPortalForm.log_and_print("[Task] No se recibió código en el correo temporal, tiempo de espera agotado.")
 #           --- FIN Leer código Guerrilla Mail ---            
 
+            # --- NUEVO: Esperar a que video(s) obligatorio(s) del panel terminen antes de continuar ---
+            videos_html5 = panel.find_elements(By.TAG_NAME, "video")
+            if videos_html5:
+                TaskFillPortalForm.log_and_print(f"[Task] {len(videos_html5)} video(s) detectado(s), esperando a que terminen...")
+                try:
+                    WebDriverWait(driver, 60).until(
+                        lambda d: all(
+                            d.execute_script("return arguments[0].ended === true;", v)
+                            for v in videos_html5
+                        )
+                    )
+                    TaskFillPortalForm.log_and_print("[Task] Video(s) finalizado(s).")
+                except TimeoutException:
+                    TaskFillPortalForm.log_and_print("[Task] Los videos no terminaron tras 60s, se continúa de todos modos.")
+            # --- FIN NUEVO ---
+
             # Botones continuar
             buttons = panel.find_elements(By.CLASS_NAME, 'continuar')
             for button in buttons:
