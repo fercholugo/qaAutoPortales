@@ -190,11 +190,12 @@ class TaskFillPortalForm:
                     select = Select(select_element)
                     valid_options = [option for option in select.options if option.get_attribute('value') != 'no_respuesta']
                     if valid_options:
-                        selected_option = random.choice(valid_options)                        
+                        selected_option = random.choice(valid_options)
                         value = selected_option.get_attribute('value')
+                        texto_opcion = selected_option.text
                         if value is not None:
                             select.select_by_value(value)
-                            TaskFillPortalForm.log_and_print(f"  SELECT: value={value}, text={selected_option.text}")
+                            TaskFillPortalForm.log_and_print(f"  SELECT: value={value}, text={texto_opcion}")
                         else:
                             TaskFillPortalForm.log_and_print(f"  SELECT: opción sin valor, no se puede seleccionar.")
                     else:
