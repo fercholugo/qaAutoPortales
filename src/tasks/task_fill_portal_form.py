@@ -205,8 +205,12 @@ class TaskFillPortalForm:
                     # Interacción forzada con JS si la normal falla
                     if valid_options and selected_option:
                         driver.execute_script(
-                            "arguments[0].value = arguments[1];"
-                            "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+                            "if (window.jQuery) {"
+                            "  jQuery(arguments[0]).val(arguments[1]).trigger('change');"
+                            "} else {"
+                            "  arguments[0].value = arguments[1];"
+                            "  arguments[0].dispatchEvent(new Event('change', {bubbles: true}));"
+                            "}",
                             select_element, selected_option.get_attribute('value')
                         )
                         TaskFillPortalForm.log_and_print(f"  SELECT: valor seleccionado (forzado JS)='{selected_option.get_attribute('value')}'")
