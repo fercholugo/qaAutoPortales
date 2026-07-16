@@ -144,7 +144,10 @@ class TaskFillPortalForm:
                         value = "Test Nombre"
                         # si el placeholder sugiere numeros, generar un número aleatorio
                 elif input_type == 'number':
-                    value = str(random.randint(100000, 99999999)) # Número aleatorio de 6 a 8 dígitos
+                    if placeholder and 'edad' in placeholder.lower():
+                        value = str(random.randint(18, 70))  # Edad razonable
+                    else:
+                        value = str(random.randint(100000, 99999999)) # Número aleatorio de 6 a 8 dígitos
 
                 elif input_type == 'email':
                      # Si el input es para validación por correo (id="correo_validar") usa Guerrilla Mail
