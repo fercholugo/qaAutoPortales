@@ -188,7 +188,8 @@ class TaskFillPortalForm:
                 selected_option = None
                 try:
                     select = Select(select_element)
-                    valid_options = [option for option in select.options if option.get_attribute('value') != 'no_respuesta']
+                    PLACEHOLDERS = ('no_respuesta', '0', '')
+                    valid_options = [option for option in select.options if (option.get_attribute('value') or '') not in PLACEHOLDERS]
                     if valid_options:
                         selected_option = random.choice(valid_options)
                         value = selected_option.get_attribute('value')
@@ -217,7 +218,13 @@ class TaskFillPortalForm:
             # Textareas
             text_areas = panel.find_elements(By.TAG_NAME, 'textarea')
             for text_area in text_areas:
-                value = "Test texto area"
+                placeholder_ta = (text_area.get_attribute('placeholder') or '').lower()
+                if 'celular' in placeholder_ta or 'tel' in placeholder_ta or 'número' in placeholder_ta:
+                    value = RandomGeneratorData.generate_random_phone()
+                elif 'correo' in placeholder_ta or 'email' in placeholder_ta:
+                    value = "testqa@correo.com"
+                else:
+                    value = "Test Nombre"
                 try:
                     text_area.clear()
                     text_area.send_keys(value)
