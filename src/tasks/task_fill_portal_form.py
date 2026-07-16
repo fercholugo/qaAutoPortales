@@ -187,6 +187,20 @@ class TaskFillPortalForm:
             # Selects
             select_elements = panel.find_elements(By.TAG_NAME, 'select')
             for select_element in select_elements:
+                # Si el select esta oculto y tiene un "campo_falso" visible al lado que lo sincroniza
+                # (ej. edad), se omite: ya se llena a traves del input real (bloque de INPUTS arriba).
+                try:
+                    if not select_element.is_displayed():
+                        siguiente_clase = driver.execute_script(
+                            "return arguments[0].nextElementSibling ? arguments[0].nextElementSibling.className : '';",
+                            select_element
+                        )
+                        if siguiente_clase and 'campo_falso' in siguiente_clase:
+                            TaskFillPortalForm.log_and_print("  SELECT: oculto con campo visible asociado (campo_falso), se omite.")
+                            continue
+                except Exception:
+                    pass
+
                 valid_options = []
                 selected_option = None
                 try:
