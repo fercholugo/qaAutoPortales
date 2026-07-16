@@ -204,7 +204,11 @@ class TaskFillPortalForm:
                 except Exception:
                     # Interacción forzada con JS si la normal falla
                     if valid_options and selected_option:
-                        driver.execute_script("arguments[0].value = arguments[1];", select_element, selected_option.get_attribute('value'))
+                        driver.execute_script(
+                            "arguments[0].value = arguments[1];"
+                            "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+                            select_element, selected_option.get_attribute('value')
+                        )
                         TaskFillPortalForm.log_and_print(f"  SELECT: valor seleccionado (forzado JS)='{selected_option.get_attribute('value')}'")
 
                     # Forzar SELECT a 'EMAIL' si el portal requiere validación por correo
