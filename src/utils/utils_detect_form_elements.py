@@ -17,6 +17,16 @@ def detect_form_elements(driver):
             print(f"[Screenplay] HTML de la página guardado en: {html_path}")
         except Exception as e:
             print(f"[Screenplay] No se pudo guardar el HTML: {e}")
+
+        # Guarda un screenshot como evidencia visual para diagnóstico
+        try:
+            output_dir = os.getenv("VIDEO_DIR", "reporte_html/videos_ejecuciones")
+            os.makedirs(output_dir, exist_ok=True)
+            screenshot_path = os.path.join(output_dir, "pagina.png")
+            driver.save_screenshot(screenshot_path)
+            print(f"[Screenplay] Screenshot de la página guardado en: {screenshot_path}")
+        except Exception as e:
+            print(f"[Screenplay] No se pudo guardar el screenshot: {e}")
         return
 
     # CAMBIO: Recorrer cada panel encontrado

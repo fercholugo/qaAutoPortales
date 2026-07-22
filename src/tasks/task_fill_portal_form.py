@@ -124,7 +124,73 @@ class TaskFillPortalForm:
         for panel_idx, panel in enumerate(panels):
             TaskFillPortalForm.log_and_print(f"\nPanel {panel_idx+1} (id={panel.get_attribute('id')}):")
 
-            # Inputs
+            # Selects (antes que los inputs: algunos inputs dependen de una seleccion
+            # previa para habilitarse/aparecer, ej. "Numero de identificacion" solo
+            # queda listo despues de elegir "Tipo de documento").
+            select_elements = panel.find_elements(By.TAG_NAME, 'select')
+            for select_element in select_elements:
+                # Si el select esta oculto y tiene un "campo_falso" visible al lado que lo sincroniza
+                # (ej. edad), se omite: ya se llena a traves del input real (bloque de INPUTS arriba).
+                try:
+                    if not select_element.is_displayed():
+                        siguiente_clase = driver.execute_script(
+                            "return arguments[0].nextElementSibling ? arguments[0].nextElementSibling.className : '';",
+                            select_element
+                        )
+                        if siguiente_clase and 'campo_falso' in siguiente_clase:
+                            TaskFillPortalForm.log_and_print("  SELECT: oculto con campo visible asociado (campo_falso), se omite.")
+                            continue
+                except Exception:
+                    pass
+
+                valid_options = []
+                selected_option = None
+                try:
+                    select = Select(select_element)
+                    PLACEHOLDERS = ('no_respuesta', '0', '')
+                    valid_options = [option for option in select.options if (option.get_attribute('value') or '') not in PLACEHOLDERS]
+                    if valid_options:
+                        # Preferir opciones de rango "adulto" cuando existan, para ser
+                        # consistente con el input numerico de edad (siempre genera 18-70).
+                        preferidas = [o for o in valid_options if 'mayor' in o.text.lower() or '18' in o.text]
+                        selected_option = random.choice(preferidas) if preferidas else random.choice(valid_options)
+                        value = selected_option.get_attribute('value')
+                        texto_opcion = selected_option.text
+                        if value is not None:
+                            select.select_by_value(value)
+                            TaskFillPortalForm.log_and_print(f"  SELECT: value={value}, text={texto_opcion}")
+                        else:
+                            TaskFillPortalForm.log_and_print(f"  SELECT: opción sin valor, no se puede seleccionar.")
+                    else:
+                        TaskFillPortalForm.log_and_print("  SELECT: No hay opciones válidas para seleccionar.")
+                except Exception:
+                    # Interacción forzada con JS si la normal falla
+                    if valid_options and selected_option:
+                        driver.execute_script(
+                            "if (window.jQuery) {"
+                            "  jQuery(arguments[0]).val(arguments[1]).trigger('change');"
+                            "} else {"
+                            "  arguments[0].value = arguments[1];"
+                            "  arguments[0].dispatchEvent(new Event('change', {bubbles: true}));"
+                            "}",
+                            select_element, selected_option.get_attribute('value')
+                        )
+                        TaskFillPortalForm.log_and_print(f"  SELECT: valor seleccionado (forzado JS)='{selected_option.get_attribute('value')}'")
+
+                    # Forzar SELECT a 'EMAIL' si el portal requiere validación por correo
+                    if guerrilla_email:
+                        try:
+                            select_email = panel.find_element(By.XPATH, ".//select[.//option[@value='EMAIL']]")
+                            Select(select_email).select_by_value('EMAIL')
+                            TaskFillPortalForm.log_and_print("  SELECT: forzado a 'EMAIL' para validación por correo.")
+                        except Exception:
+                            pass
+
+            # Pequeña espera para que campos condicionales revelados por un select
+            # (ej. "No. Cuenta" tras elegir el tipo de identificador) terminen de aparecer.
+            time.sleep(1)
+
+            # Inputs (despues de los selects, ver comentario arriba)
             inputs = panel.find_elements(By.XPATH, ".//input[not(@type='hidden')]")
             for input_element in inputs:
                 input_type = input_element.get_attribute('type')
@@ -182,64 +248,14 @@ class TaskFillPortalForm:
                         input_element.clear()
                         input_element.send_keys(value)
                     except Exception:
-                        driver.execute_script("arguments[0].value = arguments[1];", input_element, value)
-                TaskFillPortalForm.log_and_print(f"  INPUT: type={input_type}, value={value}")
-            # Selects
-            select_elements = panel.find_elements(By.TAG_NAME, 'select')
-            for select_element in select_elements:
-                # Si el select esta oculto y tiene un "campo_falso" visible al lado que lo sincroniza
-                # (ej. edad), se omite: ya se llena a traves del input real (bloque de INPUTS arriba).
-                try:
-                    if not select_element.is_displayed():
-                        siguiente_clase = driver.execute_script(
-                            "return arguments[0].nextElementSibling ? arguments[0].nextElementSibling.className : '';",
-                            select_element
-                        )
-                        if siguiente_clase and 'campo_falso' in siguiente_clase:
-                            TaskFillPortalForm.log_and_print("  SELECT: oculto con campo visible asociado (campo_falso), se omite.")
-                            continue
-                except Exception:
-                    pass
-
-                valid_options = []
-                selected_option = None
-                try:
-                    select = Select(select_element)
-                    PLACEHOLDERS = ('no_respuesta', '0', '')
-                    valid_options = [option for option in select.options if (option.get_attribute('value') or '') not in PLACEHOLDERS]
-                    if valid_options:
-                        selected_option = random.choice(valid_options)
-                        value = selected_option.get_attribute('value')
-                        texto_opcion = selected_option.text
-                        if value is not None:
-                            select.select_by_value(value)
-                            TaskFillPortalForm.log_and_print(f"  SELECT: value={value}, text={texto_opcion}")
-                        else:
-                            TaskFillPortalForm.log_and_print(f"  SELECT: opción sin valor, no se puede seleccionar.")
-                    else:
-                        TaskFillPortalForm.log_and_print("  SELECT: No hay opciones válidas para seleccionar.")
-                except Exception:
-                    # Interacción forzada con JS si la normal falla
-                    if valid_options and selected_option:
                         driver.execute_script(
-                            "if (window.jQuery) {"
-                            "  jQuery(arguments[0]).val(arguments[1]).trigger('change');"
-                            "} else {"
-                            "  arguments[0].value = arguments[1];"
-                            "  arguments[0].dispatchEvent(new Event('change', {bubbles: true}));"
-                            "}",
-                            select_element, selected_option.get_attribute('value')
+                            "arguments[0].value = arguments[1];"
+                            "arguments[0].dispatchEvent(new Event('input', {bubbles: true}));"
+                            "arguments[0].dispatchEvent(new Event('change', {bubbles: true}));",
+                            input_element, value
                         )
-                        TaskFillPortalForm.log_and_print(f"  SELECT: valor seleccionado (forzado JS)='{selected_option.get_attribute('value')}'")
+                TaskFillPortalForm.log_and_print(f"  INPUT: type={input_type}, value={value}")
 
-                    # Forzar SELECT a 'EMAIL' si el portal requiere validación por correo
-                    if guerrilla_email:
-                        try:
-                            select_email = panel.find_element(By.XPATH, ".//select[.//option[@value='EMAIL']]")
-                            Select(select_email).select_by_value('EMAIL')
-                            TaskFillPortalForm.log_and_print("  SELECT: forzado a 'EMAIL' para validación por correo.")
-                        except Exception:
-                            pass    
             # Textareas
             text_areas = panel.find_elements(By.TAG_NAME, 'textarea')
             for text_area in text_areas:
@@ -248,6 +264,8 @@ class TaskFillPortalForm:
                     value = RandomGeneratorData.generate_random_phone()
                 elif 'correo' in placeholder_ta or 'email' in placeholder_ta:
                     value = "testqa@correo.com"
+                elif 'cuenta' in placeholder_ta or 'documento' in placeholder_ta or 'identifica' in placeholder_ta:
+                    value = str(random.randint(10000000000, 99999999999))
                 else:
                     value = "Test Nombre"
                 try:
@@ -307,6 +325,17 @@ class TaskFillPortalForm:
                 TaskFillPortalForm.log_and_print(f"[Task] HTML del panel {panel_idx+1} guardado en: {panel_html_path}")
             except Exception as e:
                 TaskFillPortalForm.log_and_print(f"[Task] No se pudo guardar HTML del panel: {e}")
+            # --- FIN NUEVO ---
+
+            # --- NUEVO: Guardar screenshot del panel como evidencia visual ---
+            try:
+                output_dir = os.getenv("VIDEO_DIR", "reporte_html/videos_ejecuciones")
+                os.makedirs(output_dir, exist_ok=True)
+                screenshot_path = os.path.join(output_dir, f"panel_{panel_idx+1}.png")
+                driver.save_screenshot(screenshot_path)
+                TaskFillPortalForm.log_and_print(f"[Task] Screenshot del panel {panel_idx+1} guardado en: {screenshot_path}")
+            except Exception as e:
+                TaskFillPortalForm.log_and_print(f"[Task] No se pudo guardar screenshot del panel: {e}")
             # --- FIN NUEVO ---
 
             # --- NUEVO: Si hay un video de YouTube obligatorio, reproducirlo y esperar a que termine ---
